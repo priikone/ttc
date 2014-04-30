@@ -1,0 +1,53 @@
+/*
+ * Revision 3.1  18.8.1999  pekka
+ *	Minor code fixes
+ *	Added automatic uninstalling of ttc to Makefile
+ *	Added common.c for common ttc functions
+ *	Added pam_ttc manual page, updated manual pages
+ *
+ * Revision 3.0  23.4.1999  pekka
+ *	Some code fixes
+ *	Ttc PAM module added
+ *
+ * Revision 2.8  15.3.1999  pekka
+ *	Made manuals for ttc and ttcd
+ *	Some bug fixes
+ *	Time limit is now shown also on the very first logon
+ *	Bug fixes in ttcd.c, options.c and confauth.c
+ *
+ * Revision 2.7  9.3.1998  pekka
+ *	Improved option handling
+ *	Added new sort of configuration handling for ttc
+ *	  ttc.config -file, see code for more
+ *	Removed -l option (not needed anymore)
+ *	Removed -s option (not needed anymore)
+ *	Added new deny_access() function
+ *	Added usage of wildcards in names of tty's
+ *	Improved some code
+ *	Fixed some minor bugs
+ *
+ * Revision 2.6  28.5.1997  pekka
+ *	Fixed sendto() for other systems in send_message()
+ *	Added -l option for login count checks per day
+ *	Added ^C signal to be set default before exiting
+ *
+ * Revision 2.5  24.2.1997  pekka
+ *	Removed suid-root
+ *	Made ttcd.c, ttc daemon to handle timing
+ *	ttc now uses sockets to communicate between ttc and ttcd
+ *	 so we don't need to run it as suid-root
+ *	Made options.c for better option handling
+ * 
+ * Revision 2.2  7.2.1997  pekka
+ *	added -static flag in compiling for suid-root
+ *
+ * Revision 2.1  5.2.1997  pekka
+ *	Added timing routine into ttc.c
+ *	ttc runs now as suid-root
+ *
+ * Revision 1.7  26.1.1997  pekka
+ *	Made all new timing system	
+ *
+ * Revision 1.0  23.1.1997  pekka
+ *	First release version
+ */

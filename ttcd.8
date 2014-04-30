@@ -1,0 +1,118 @@
+.TH ttcd 8    17.2.1999 ttcd
+.SH NAME
+ttcd \- Terminal Type Control Daemon
+.SH SYNOPSIS
+.B ttcd
+[\c
+.B \-c
+]
+[\c
+.B \-hV
+]
+.SH DESCRIPTION
+.PP
+Ttcd \- Terminal Type Control Daemon -program for
+.B ttc(1).
+.PP
+Ttcd handles the timing for users. When executed, daemon remains
+running on the background. When user logs in on timed tty a new 
+ttcd daemon is started. It remains running until user has logged off
+or until ttcd closes user's connection.
+.PP
+When running ttcd for the very first time it is important to give
+.B \-c 
+option. This option creates ttc directory into /tmp directory
+when ran for the very first time.
+.SH OPTIONS
+.TP
+.B \-c
+Removes all the time limit files from 
+.B /tmp/ttc 
+and of sets users time
+limits to maximum again. Use this option when running ttcd for the very
+first time \- it creates the ttc directory into /tmp.
+.PP
+.RS
+.B IMPORTANT:
+.PP
+This option is meant to be run every day when time is 00:00. Maybe, the
+best way to do that is to put ttcd with 
+.B \-c 
+option in crontab. Like in /var/spool/cron/root. Put there a 
+line which looks like this:
+.PP
+.RS
+.B 00 00 * * * /usr/local/bin/ttcd \-c
+.RE
+.PP
+Then rerun 
+.B crond. 
+This will run ttcd with 
+.B \-c
+option every day when time is
+00:00 which is exactly what we want.
+.PP
+NOTE: If you don't run 
+.B \-c 
+option every day on 00:00 time bank system
+won't work, since it doesn't remove the zero files. This means that users
+won't be able to login back again, so don't forget to run this command!!
+.PP
+TIP: If you want to use time bank system longer than just for one day then
+run this for example every two days to get two day time bank system.
+.RE
+.TP
+.B \-h
+Displays help.
+.TP
+.B \-V
+Displays current version.
+.SH AFTER INSTALLATION
+There are some tasks you have to do right after installation in order for
+ttc to work. The very first thing to do after installing ttc and ttcd, is
+to create the directory for the time limit files. Option 
+.B \-c 
+does that, because it is used to clean time limit files. Give as root:
+.PP
+.RS
+.B # ttcd -c
+.RE
+.PP
+or create 
+.B /tmp/ttc 
+directory manually by using mkdir. 
+.B ttcd \-c 
+command
+creates 
+.B /tmp/ttc 
+directory. I suggest using 
+.B \-c 
+option because it sets the permissions to correct also.
+.PP
+And last, in order to use timing you have to run ttcd on the background.
+The best place to put ttcd is rc scripts. This could be rc.local, which is
+started on every boot, so you don't have to start it manually after very
+boot.
+.PP
+I also suggest to read
+.B ttc(1)
+manual page.
+.SH FILES
+.TP
+.B /etc/ttc.config
+Ttc configuration file.
+.PP
+.TP
+.B /var/log/ttcdlog
+Log file.
+.SH BUGS
+None known. Please report if you find a bug.
+.SH AUTHOR
+Pekka Riikonen (priikone@poseidon.pspt.fi)
+.SH SEE ALSO
+.LP
+.BR ttc (1),
+.BR pam_ttc (7),
+.BR crond (8),
+.BR crontab (1),
+.BR crontab (5)

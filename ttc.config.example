@@ -1,0 +1,89 @@
+#
+# Timing Authentication section.
+#
+# Name in this section will give user no time limit at all or some
+# other time limit (smaller perhaps than for others) than other
+# users. You can also define if user has time bank or not. Login
+# limits can be defined here too.
+#
+# Don't define here users unless you want to give them some more
+# privileges than others have.
+#
+# Format: +username:timelimit:notimebank:loginlimit
+#
+# Keyword 'ALL' can replace 'username' in upper format. ALL means
+# all users. However, any username defined _before_ ALL keyword is
+# handled separately.
+#
+# Examples:
+# +priikone:::		    # User 'priikone' has not time limit at all
+#			      and no login limit either (unlimited access).
+# +priikone:30::	    # User 'priikone' has 30 minute time limit
+#			      and no login limit.
+# +priikone:45:notimebank:  # User 'priikone' has 45 minute time limit
+#  			      but no time bank system and no login limit.
+# +priikone::notimebank:    # User 'priikone' _has_ time limit
+#			      but no time bank system. Default time
+#			      limit is used.
+# +priikone:::10	    # User 'priikone' has not time limit at all
+#			      and can logon 10 times during the day.
+# +priikone:50::5	    # User 'priikone' has 50 minute time limit and
+#			      can logon 5 times during the day.
+# +priikone::notimebank:10  # User 'priikone' _has_ time limit but no 
+#			      time bank system and can logon 10 times
+#			      during the day. Default time limit is used.
+# +ALL:60::10		    # All users has 60 minute time limit and
+#			      can logon 10 times during the day.
+#
+<TimingAuth>
+
+
+#
+# Deny Authentication section.
+#
+# Name in this section will give user access to that tty which was
+# marked as denied.
+#
+# Don't define here users unless you want to give them some
+# more privileges than others have. It is a good idea to always
+# define user 'root' here, just in case.
+#
+# Format: +username
+#
+# Keyword 'ALL' can replace 'username' in upper format. ALL means
+# all users. The order of appearance of keyword 'ALL' and 'username'
+# is not important here.
+#
+# Examples:
+# +priikone	# User 'priikone' has access to all denied tty's
+# +ALL		# All users has access to all denied tty's
+#
+<DenyAuth>
+
+
+#
+# Deny Access section.
+#
+# Name in this section will deny to that user to be able to logon
+# specified tty(s).
+#
+# This section should not be used unless specifically needed to for
+# example deny for some specific user not to be able to logon to
+# some tty (like for example to modem lines).
+#
+# For safety reasons keyword 'ALL' _cannot_ be used here! Also, never 
+# define user 'root' here unless you know what you're doing!
+#
+# Format: +username:ttylist 	(seperated by whitespace. wildcards
+# 				 can be used in ttylist.)
+#
+# Examples:
+# +priikone:/dev/ttyS1		  # User 'priikone' is denied to logon
+#				    /dev/ttyS1.
+# +priikone:/dev/ttyS* /dev/tty1  # User 'priikone' is denied to logon
+#				    all /dev/ttyS tty's and /dev/tty1.
+# +priikone:			  # User 'priikone' is denied to logon
+#				    any tty.
+#
+<DenyAccess>
+

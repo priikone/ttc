@@ -1,0 +1,228 @@
+ =============================================================================
+
+                         TTC - TERMINAL TYPE CONTROL
+                                Version 3.0
+
+     Copyright (c) 1997 - 1999 Pekka Riikonen, priikone@poseidon.pspt.fi
+           Distributable under the terms of GNU GPL. See COPYING.
+
+ =============================================================================
+
+
+INTRODUCTION
+============
+
+This file includes information about ttc and ttcd -programs. How to use
+them and how to configure them. If your system supports PAM modules then
+you might want to read README.PAM also. Ttc PAM module replaces the
+ttc -program discussed in this file.
+
+
+USING TTC
+=========
+
+Command line options for ttc are:
+
+    -d <ttylist>   deny tty's
+    -t <ttylist>   timing for tty's
+    -f <file>      read options from file
+    -h             display help message
+    -V             display version
+
+
+Options for ttc are given on the command line like next:
+
+# ttc -d /dev/tty1 /dev/tty2 /dev/tty3 -t /dev/ttyS1 /dev/ttyS2
+
+This would deny terminal types tty1..3 and would set timing to two first 
+serial lines, ttyS1 and ttyS2. As you can see, you can set any tty you 
+want and as many as you want to. You can also use wildcards when defining
+tty's.
+
+Other way to give options is to create options file. By default, if you 
+run ttc _without any options_, ttc reads /etc/ttc.options file for
+options. By using -f option you can order ttc to read what ever options
+file you want. 
+
+Options file could be like next:
+
+# example ttc options file
+# denied tty's
+-d /dev/tty3 /dev/tty5
+# timed tty's
+-t /dev/ttyS1 /dev/ttyS2
+
+This would set deny to tty3 and tty5 and timing for ttyS1 and ttyS2. 
+You can replace -d option with keyword 'deny' and -t option with keyword
+'timing', respectively. Wildcard's can be used when defining tty's. Lines
+starting with '#' are ignored.
+
+
+CONFIGURATION FILE FOR TTC
+==========================
+
+This new version of ttc is quite configurable. All configurations for ttc
+are done by default in /etc/ttc.config -file. I have included an example
+configuration file (ttc.config.example) which includes good examples for
+different configuration scenes. (This configuration file replaces old
+ttc.timing, ttc.deny, ttc.notimebank and ttc.logcount files)
+
+Configuration file consists of three (3) different sections:
+
+<TimingAuth>	Format: +username:timelimit:notimebank:loginlimit
+<DenyAuth>	Format: +username
+<DenyAccess>	Format: +username:ttylist
+
+
+TimingAuth -section:
+
+Name in this section will give user no time limit at all or some other
+time limit (smaller perhaps than for others) than other users. You can
+also define if user has time bank or not. Login limits can be defined here
+too. Keyword 'ALL' can replace username in upper format.
+
+Examples (See ttc.config.example -file for more examples!):
+
+<TimingAuth>
++priikone:::
++kansanen:30:notimebank:
++giselak:50::10
++ALL:60::5
+
+This means that user 'priikone' has no time limit at all. User 'kansanen'
+has 30 minute time limit but no time bank system. User 'giselak' has 50
+minute time limit and can logon 10 times during the day. And last, all
+users (except user defined above keyword 'ALL') has 60 minute time limit
+and can logon 5 times during the day.
+
+Keyword 'ALL' is optional and if it is not given, default time limit is
+used for all other users not defined in this section.
+
+
+DenyAuth -section:
+
+Name in this section will give user access to that tty which was marked as
+denied. Keyword 'ALL' can be used here as well.
+
+Examples (See ttc.config.example -file for more examples!):
+	
+<DenyAuth>
++root
++priikone
++giselak
+
+This means that users 'root', 'priikone' and 'giselak' can login on those
+tty's which was marked as denied. It is always a good idea to include user
+'root' here, just in case.
+
+
+DenyAccess -section:
+
+Name in this section will deny to that user to be able to logon specified
+tty(s). This section should not be used unless specifically needed to for 
+example deny for some specific user not to be able to logon to some tty
+(like for example to modem lines). 
+
+For safety reasons keyword 'ALL' _cannot_ be used here! Also, never define
+user 'root' here unless you know what you're doing!
+
+This section is always in use, so you don't have to define any option in
+options file in order to use this. This section is disabled when no
+usernames is defined here. 
+
+Examples (See ttc.config.example -file for more examples!):
+
+<DenyAccess>
++doejohn:/dev/ttyS* /dev/tty1
++kyheroin:
+
+This means that user 'doejohn' is denied to logon all /dev/ttyS tty's and
+/dev/tty1. User 'kyheroin' is denied to logon any tty. Ttylist is always
+seperated by whitespaces, and wildcards can be used when defining tty
+names. 
+
+
+USING TTCD
+==========
+
+Ttcd is Terminal Type Control Daemon -program, which handles the timing
+for the user.
+
+Ttcd daemon remains running on the background and handles timing for
+tty's. It creates another process of itself when someone starts timing,
+what means that if I log in for example from ttyS1 and timing is set for
+that tty, ttcd will start another ttcd process to handle that timing.
+Ttcd is run without arguments. Ttcd log messages are saved into  
+/var/log/ttcdlog.
+
+Options for ttcd are:
+
+    -c    clean time limit files
+    -h    display help message
+    -V    display version
+
+IMPORTANT:
+----------
+
+-c option is very important in ttcd. It is in root's use only. This  
+option removes all the files from /tmp/ttc and of course sets users time  
+limits to max again. Note: Never give this option unless you know what
+you're doing. 
+
+This option is meant to be run every day when time is 00:00. Maybe, the 
+best way to do that is to put ttcd with -c option in crontab. Like in 
+/var/spool/cron/root. Put there a line which looks like this:
+
+00 00 * * * /usr/local/bin/ttcd -c
+
+Then rerun crond. This will run ttcd with -c option every day when time is 
+00:00 which is exactly what we want.
+
+NOTE: If you don't run -c option every day on 00:00 time bank system 
+won't work, since it doesn't remove the zero files. This means that users 
+won't be able to login back again, so don't forget to run this command!!
+
+TIP: If you want to use time bank system longer than just for one day then
+run this for example every two days to get two day time bank system.
+
+
+AFTER COMPILING TTC AND TTCD
+============================
+
+Instructions for compiling and installing ttc and ttcd are in INSTALL
+-file. Please read it carefully.
+
+There are some tasks you have to do right after compilation in order for
+ttc to work. The very first thing to do after compiling ttc and ttcd, is
+to create the directory for the time limit files. Option -c does that,
+because it is used to clean time limit files. Give as root:
+
+# ttcd -c
+
+or create /tmp/ttc directory manually by using mkdir. ttcd -c command 
+creates /tmp/ttc directory. I suggest using -c option because it sets the
+permissions to correct also.
+
+Another thing you have to do, to get ttc work is, to place it in a
+file which is read on every login. if you use bash, this file would be
+/etc/profile, on the other hand, if you use tcsh, this file would be
+/etc/csh.cshrc. Or any other you might think of - it doesn't matter as
+long as ttc will be executed on every login.
+
+And last, in order to use timing you have to run ttcd on the background.
+The best place to put ttcd is rc scripts. This could be rc.local, which is
+started on every boot, so you don't have to start it manually after very
+boot.
+
+
+BUGS
+====
+
+If I'm learning anything from the past versions, is that there are bugs
+and always will be. :) Please report if found any.
+
+Any other suggestions or comments are welcome!
+
+						Pekka Riikonen
+						priikone@poseidon.pspt.fi
+						23.4.1999

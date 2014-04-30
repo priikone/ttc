@@ -1,0 +1,113 @@
+ =============================================================================
+
+                         TTC - TERMINAL TYPE CONTROL
+                                Version 3.0
+
+     Copyright (c) 1997 - 1999 Pekka Riikonen, priikone@poseidon.pspt.fi
+           Distributable under the terms of GNU GPL. See COPYING.
+
+ =============================================================================
+
+
+INTRODUCTION
+============
+
+This file includes information about ttc PAM module. This is a Pluggable
+Authentication Module that entirely replaces the ttc -program. However,
+ttc PAM module still uses ttcd -program to handle timing, so make sure
+to read README.TTC -file also. In order to use ttc PAM module you have 
+to compile ttc and ttcd -programs, as well.
+
+
+USING TTC PAM
+=============
+
+First, it is needed to say that if you want to use ttc PAM module then
+_do not_ use ttc -program at all. However, you will have to compile it
+because at the same time it compiles ttcd -program as well. You need the
+ttcd in order the timing to work. You can install ttc -program but do 
+not use it if you want to use ttc PAM module. The ttc PAM module replaces 
+this ttc -client program entirely. In fact, ttc PAM module and ttc
+-program are one and the same but other is PAM library and other is
+executable program. Use one, not both.
+
+
+Ttc PAM module is a library file that is executed by PAM library. In 
+order to be able to do this you will have to add ttc PAM module into PAM
+configuration. The PAM configuration files are located in /etc/pam.d
+directory. Ttc PAM module is needed to put into /etc/pam.d/login -file
+in order to run the module on every logon. This is what we want.
+
+My /etc/pam.d/login file looks like following:
+
+#%PAM-1.0
+auth       required     /lib/security/pam_securetty.so
+auth       required     /lib/security/pam_pwdb.so shadow nullok
+auth       required     /lib/security/pam_nologin.so
+account    required     /lib/security/pam_pwdb.so
+account    required     /lib/security/pam_ttc.so
+password   required     /lib/security/pam_cracklib.so
+password   required     /lib/security/pam_pwdb.so shadow nullok use_authtok
+session    required     /lib/security/pam_pwdb.so
+
+Note the line from above:
+
+account    required     /lib/security/pam_ttc.so
+
+
+Add the same line in your /etc/pam.d/login -file to make ttc PAM
+module to work.
+
+
+Ttc PAM module doesn't have any command line options like ttc -program
+has. However, it still has _all_ the same options that ttc has. These
+options are always read from the default options file, /etc/ttc.options.
+The format of the configuration file is the same as with ttc -program.
+
+Options file could be like next:
+
+# example ttc options file
+# denied tty's
+-d /dev/tty3 /dev/tty5
+# timed tty's
+-t /dev/ttyS1 /dev/ttyS2
+
+This would set deny to tty3 and tty5 and timing for ttyS1 and ttyS2.
+You can replace -d option with keyword 'deny' and -t option with keyword
+'timing', respectively. Wildcard's can be used when defining tty's. Lines
+starting with '#' are ignored.
+
+
+CONFIGURATION FILE FOR TTC
+==========================
+
+This section is same for both ttc PAM module and ttc -program. Read this
+section from README.TTC -file.
+
+
+OTHER INFORMATION
+=================
+
+All the other information regarding ttc daemon (ttcd) and other facts
+are same for ttc PAM as well for ttc -program. Read this information 
+from README.TTC -file.
+
+
+SUMMARY
+=======
+
+In summary, to use ttc PAM module:
+
+* Read README.TTC also
+* Read INSTALL
+* Compile and install ttc and ttcd as instructed in INSTALL
+* Compile and install ttc PAM module as instructed in INSTALL
+* Add ttc PAM module into /etc/pam.d/login -file
+* Set up the ttcd -program as instructed in README.TTC and INSTALL
+* Set up your options and other configuration for ttc PAM
+* Do not use ttc -program after that.
+
+
+						Pekka Riikonen
+						priikone@poseidon.pspt.fi
+						23.4.1999

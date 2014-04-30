@@ -1,0 +1,72 @@
+ =============================================================================
+
+                         TTC - TERMINAL TYPE CONTROL
+                                Version 3.0
+
+     Copyright (c) 1997 - 1999 Pekka Riikonen, priikone@poseidon.pspt.fi
+           Distributable under the terms of GNU GPL. See COPYING.
+
+ =============================================================================
+
+
+DESCRIPTION
+===========
+
+Ttc - Terminal Type Control -program, controls the logins on those  
+terminal types, given as argument for the ttc. You can deny any terminal  
+type you want and/or you can set timing for any terminal type you want.
+
+Ttc is very handy when, for example, we want to deny logins from console 
+except for some users, like root and administrators. Deny option has 
+authorization check and if user passes it, user is able to login that 
+terminal type what was marked as denied. If user fails authentication, 
+session will be killed.
+
+Other very useful option is timing. Using this option you can set timing 
+to any tty you want to. This is very handy for example with serial lines. 
+When users time is up, session will be killed. Timing option also has
+authorization check. If user passes it, user will have no time limit. If
+user fails authentication, default time limit is set for user. Timing
+process is handled by ttc daemon program (ttcd).
+
+Timing has also a time bank system. This means that user can have for
+example 60 minutes time limit, for one day. If user uses all time limit,
+he/she won't be able to login again during that day. At 00:00 all time
+limit files will be removed and user is able to login again. User can use
+the time limit in so many parts he/she wants during the day.
+
+Time bank system can be disabled, when user has normal time limit but 
+after time is up user is still able to login back again.
+
+With ttc you can also control users logons on timed terminal types. This
+means that if login limit is given, user is able to logon during that
+day, that many times defined in login limit. After user has used his/her
+login limit, user is not able to logon again. Login limit is combined with
+time bank system, so when time limit files is removed, login limits are
+set back up again.
+
+Ttc also has a deny access option. You can deny some specific user to 
+logon to some specific tty(s). This option should be used very carefully. 
+More about this in README.TTC.
+
+
+MORE INFORMATION AND INSTALLATION
+=================================
+
+A must read information before installation is README.TTC. This file
+includes all the information how to use ttc and ttcd in general and how to
+configure it.
+
+Also, the ttc package now includes also ttc PAM module. This is a Pluggable 
+Authentication Module that replaces ttc -program on those systems that run 
+PAM library. These systems are Linux and Solaris. If you have PAM installed 
+in your system it is recommended to install ttc PAM module. In this case, 
+please also read README.PAM. Ttc PAM module replaces ttc -program but
+it still uses ttcd -program, so make sure to read README.TTC also.
+
+Read INSTALL for installation instructions.
+
+
+						Pekka Riikonen
+						priikone@poseidon.pspt.fi
+						23.4.1999

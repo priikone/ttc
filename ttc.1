@@ -1,0 +1,273 @@
+.TH ttc 1    17.2.1999 ttc
+.SH NAME
+ttc \- Terminal Type Control
+.SH SYNOPSIS
+.B ttc
+[\c
+.B \-d \c
+.B <any terminal type> ...\c
+]
+[\c
+.B \-t \c
+.B <any terminal type> ...\c
+]
+[\c
+.B \-f \c
+.B filename\c
+]
+[\c
+.B \-hV\c
+]
+.PP
+Terminal type can be for example:
+.B /dev/tty* | /dev/pts* | /dev/pty*
+.SH DESCRIPTION
+.PP
+Ttc \- Terminal Type Control -program, controls the logins on those  
+terminal types, given as argument for the ttc. You can deny any terminal  
+type you want and/or you can set timing for any terminal type you want.
+.PP
+Ttc is very handy when, for example, we want to deny logins from console 
+except for some users, like root and administrators. Deny option has 
+authorization check and if user passes it, user is able to login that 
+terminal type what was marked as denied. If user fails authentication, 
+session will be killed.
+.PP
+Other very useful option is timing. Using this option you can set timing 
+to any tty you want to. This is very handy for example with serial lines. 
+When users time is up, session will be killed. Timing option also has
+authorization check. If user passes it, user will have no time limit. If
+user fails authentication, default time limit is set for user. Timing
+process is handled by ttc daemon program \-
+.B ttcd(8).
+.PP
+Timing has also a time bank system. This means that user can have for
+example 60 minutes time limit, for one day. If user uses all time limit,
+he/she won't be able to login again during that day. At 00:00 all time
+limit files will be removed and user is able to login again. User can use
+the time limit in so many parts he/she wants during the day.
+.PP
+Time bank system can be disabled, when user has normal time limit but 
+after time is up user is still able to login back again.
+.PP
+With ttc you can also control users logons on timed terminal types. This
+means that if login limit is given, user is able to logon during that
+day, that many times defined in login limit. After user has used his/her
+login limit, user is not able to logon again. Login limit is combined with
+time bank system, so when time limit files is removed, login limits are
+set back up again.
+.PP
+Another feature is deny access option. You can deny some specific user 
+to logon to some specific tty(s). This option should be used very 
+carefully.
+.SH OPTIONS
+Options for ttc are given on the command line like next:
+.PP
+.RS
+# 
+.B ttc -d /dev/tty1 /dev/tty2 /dev/tty3 -t /dev/ttyS1 /dev/ttyS2
+.RE
+.PP
+This would deny terminal types tty1..3 and would set timing to two first 
+serial lines, ttyS1 and ttyS2. As you can see, you can set any tty you 
+want and as many as you want to. You can also use wildcards when defining
+tty's.
+.TP
+.B \-d ttylist
+Deny tty's (eg. -d /dev/tty1 /dev/ttyS1 ...)
+.TP
+.B \-t ttylist
+timing for tty's (eg. -t /dev/ttyS3, /dev/ttyS1 ...)
+.TP
+.B \-f filename
+read options from file (default: /etc/ttc.options)
+.TP
+.B \-h
+Displays help
+.TP
+.B \-V
+Displays current version
+.PP
+Other way to give options is to create options file. By default, if you 
+run ttc _without any options_, ttc reads 
+.B /etc/ttc.options 
+file for options. By using 
+.B \-f 
+option you can order ttc to read what ever options file you want. 
+.PP
+Options file could be like next:
+.PP
+.RS
+# example ttc options file
+.br
+# denied tty's
+.br
+\-d /dev/tty3 /dev/tty5
+.br
+# timed tty's
+.br
+\-t /dev/ttyS1 /dev/ttyS2
+.br
+.RE
+.PP
+This would set deny to tty3 and tty5 and timing for ttyS1 and ttyS2. 
+You can replace 
+.B \-d 
+option with keyword 
+.B deny
+and 
+.B \-t 
+option with keyword
+.B timing\c
+, respectively. Wildcard's can be used when defining tty's. Lines
+starting with 
+.B #
+are ignored.
+.SH CONFIGURATION FILES
+Ttc is quite configurable. All configurations for ttc
+are done by default in 
+.B /etc/ttc.config
+\-file. 
+(This configuration file replaces old
+ttc.timing, ttc.deny, ttc.notimebank and ttc.logcount files)
+.PP
+Configuration file consists of three (3) different sections:
+.PP
+.RS
+.br 
+.B <TimingAuth>	Format: +username:timelimit:notimebank:loginlimit
+.br 
+.B <DenyAuth>	Format: +username
+.br 
+.B <DenyAccess>	Format: +username:ttylist
+.RE
+.PP
+.B TimingAuth \-section:
+.RS
+Name in this section will give user no time limit at all or some other
+time limit (smaller perhaps than for others) than other users. You can
+also define if user has time bank or not. Login limits can be defined here
+too. Keyword 
+.B ALL 
+can replace 
+.B username 
+in upper format.
+.PP
+Examples:
+.PP
+.B <TimingAuth>
+.br
+.B +priikone:::
+.br
+.B +kansanen:30:notimebank:
+.br
+.B +giselak:50::10
+.br
+.B +ALL:60::5
+.br
+.PP
+This means that user 'priikone' has no time limit at all. User 'kansanen'
+has 30 minute time limit but no time bank system. User 'giselak' has 50
+minute time limit and can logon 10 times during the day. And last, all
+users (except users defined above keyword 
+.B ALL\c
+) has 60 minute time limit
+and can logon 5 times during the day.
+.PP
+Keyword 
+.B ALL
+is optional and if it is not given, default time limit is
+used for all other users not defined in this section.
+.RE
+.PP
+.B DenyAuth -section:
+.RS
+Name in this section will give user access to that tty which was marked as
+denied. Keyword 
+.B ALL
+can be used here as well.
+.PP
+Examples:
+.PP	
+.B <DenyAuth>
+.br
+.B +root
+.br
+.B +priikone
+.br
+.B +giselak
+.br
+.PP
+This means that users 'root', 'priikone' and 'giselak' can login on those
+tty's which was marked as denied. It is always a good idea to include 
+user 'root' here, just in case.
+.RE
+.PP
+.B DenyAccess -section:
+.RS
+Name in this section will deny access for specified user to specified
+tty(s). This section should not be used unless specifically needed to for 
+example deny for some specific user not to be able to logon to some tty
+(like for example to modem lines). 
+.PP
+For safety reasons keyword 
+.B ALL
+.B _cannot_ 
+be used here! 
+.B Also, never define user 'root' here unless you know what you're doing!
+.PP
+This section is always in use, so you don't have to define any option in
+options file in order to use this. This section is disabled when no
+usernames is defined here. 
+.PP
+Examples:
+.PP
+.B <DenyAccess>
+.br
+.B +doejohn:/dev/ttyS* /dev/tty1
+.br
+.B +kyheroin:
+.br
+.PP
+This means that user 'doejohn' is denied to logon all /dev/ttyS tty's and
+/dev/tty1. User 'kyheroin' is denied to logon any tty. Ttylist is always
+seperated by whitespaces, and wildcards can be used when defining tty
+names. 
+.SH AFTER INSTALLATION
+There are some tasks you have to do right after installation of ttc and ttcd.
+I suggest to read 
+.B ttcd(8)
+manual page also.
+.PP
+In order to get ttc check denied and timed tty's every time a user logs in,
+is to place it in a file which is read on every login. if you
+use  bash,  this  file  would  be  /etc/profile,  on  the  other  hand,  
+if you use tcsh, this file would be /etc/csh.cshrc. Or any other you might 
+think of \- it doesn't matter as long as ttc
+will be executed on every login.
+
+.SH REPLACEMENT FOR TTC(1)
+There is a ttc PAM module that entirely replaces
+.B ttc(1)
+-client program. This is a Pluggable Authentication Module (PAM) that runs 
+on system that run PAM library. Read
+.B pam_ttc(7)
+for more information. Ttc PAM module is included in ttc 3.0 package.
+
+.SH FILES
+.TP
+.B /etc/ttc.config
+Ttc configuration file.
+.PP
+.TP
+.B /etc/ttc.options
+Ttc options file.
+.SH BUGS
+None known. Please report if you find a bug.
+.SH AUTHOR
+Pekka Riikonen (priikone@poseidon.pspt.fi)
+.SH SEE ALSO
+.LP
+.BR pam_ttc (7)
+.BR ttcd (8)
+

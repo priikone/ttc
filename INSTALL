@@ -1,0 +1,112 @@
+================================
+
+ INSTALLING TTC AND TTC DAEMON
+
+================================
+
+This file instructs compiling and installing ttc, ttcd and ttc PAM
+module. Please also read README.TTC and README.PAM files.
+
+
+CONFIGURING TTC AND TTC DAEMON
+==============================
+
+Before compiling it is a good idea to check out the configuration file.
+Configuration file is config.h. That file includes all the possible 
+configuration options you can do. I suggest checking config.h at the 
+same time when reading this.
+
+
+Configuring ttc
+===============
+
+DEFOPTION	Default options file is used when you run ttc without any
+		arguments. Modify DEFOPTION if default (/etc/ttc.options)
+		doesn't suite for you.
+
+CONF_FILE	This is default configuration file (/etc/ttc.config). This
+		file includes all configurations for ttc. (See README).
+		Modify this if this doesn't suite for you.
+
+There are some other configurable parts for ttc but they aren't really 
+important. Check out config.h for them if you want to modify them.
+
+
+Configuring ttcd
+================
+
+DEBUG		By default DEBUGing is defined. If you don't want any log
+		messages then do #undef DEBUG. Log messages are saved
+		int /var/lock/ttcdlog.
+
+SOCKET_PATH	Path for ttcd socket. Default should suite for you too.
+
+A_TIME		By modifying A_TIME, which is by default 60 minutes, you
+		can set the time you want to give user to spare. This is
+		the default time limit! Only integers are allowed!
+
+A_MINUTES 	Is the time ttc waits before next round to check if user
+		is still logged on and to add A_MINUTES to current time.
+		Default is 1 minute, which is fine!
+
+K_SECONDS 	Is the time after warning message is printed to user,  
+		session will be killed. Default is 60 seconds.
+
+Again, there are more configurable parts for ttcd too, but they aren't 
+really important. Check out config.h for them if you want to modify them.
+
+
+COMPILING AND INSTALLING
+========================
+
+Before compiling check that config.h and Makefile suites for you.
+
+To compile and install ttc and ttcd, type:
+
+make
+make install
+
+By default ttc and ttcd will be installed in /usr/local/bin. Edit
+Makefile to change this default.
+
+
+If your system supports PAM and it has been installed, then you might
+want to install ttc PAM module. Read README.PAM for more information.
+If your system doesn't support PAM or it hasn't been installed then you
+can skip next two commands. To compile and install ttc PAM module, type:
+
+make modules
+make modules_install
+
+By default ttc PAM module will be installed in /lib/security. Edit
+Makefile to change this default, if you want to. Note that you still 
+have to compile ttc and ttcd in order to ttc PAM module to work. Ttc 
+PAM module replaces ttc -program but it still uses ttcd.
+
+
+AFTER COMPILATION 
+=================
+
+If you are going to use ttc and ttcd then read after compilation
+instructions from README.TTC.
+
+If you are going to use ttc PAM module and ttcd then read after
+compilation instructions from README.PAM.
+
+
+UNINSTALLING
+============
+
+If you want to uninstall ttc and/or ttc PAM module from their default
+locations you can do it by giving:
+
+make uninstall
+make modules_uninstall
+
+This doesn't remove configuration files thus you need to remove them
+by yourself.
+
+
+						Pekka Riikonen
+						priikone@poseidon.pspt.fi
+						17.8.1999
